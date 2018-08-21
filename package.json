@@ -1,0 +1,19 @@
+{
+  "name": "how-to-implement-promise",
+  "version": "1.0.0",
+  "description": "A tutorial to show how to implement Promise using vanilla JavaScript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeantimex/how-to-implement-promise.git"
+  },
+  "author": "jeantimex",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jeantimex/how-to-implement-promise/issues"
+  },
+  "homepage": "https://github.com/jeantimex/how-to-implement-promise#readme"
+}
