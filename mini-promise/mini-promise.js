@@ -205,4 +205,18 @@ MiniPromise.resolve = function (value) {
   });
 };
 
+MiniPromise.reject = function (reason) {
+  return new MiniPromise(function (resolve, reject) {
+    reject(reason);
+  });
+};
+
+MiniPromise.all = async function (promises) {
+  var results = [];
+  for (var promise of promises) {
+      results.push(await promise);
+  }
+  return results;
+};
+
 module.exports = MiniPromise;
