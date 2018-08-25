@@ -1,6 +1,14 @@
+// -------------------------------
+//  Variables
+// -------------------------------
+
 var PENDING = 0;
 var RESOLVED = 1;
 var REJECTED = 2;
+
+// -------------------------------
+//  Helper Functions
+// -------------------------------
 
 var asyncFn = (function() {
   if (
@@ -159,6 +167,10 @@ function handleResolved(promise, callback) {
   });
 }
 
+// -------------------------------
+//  Constructor
+// -------------------------------
+
 function Promise(resolver) {
   if (resolver && typeof resolver !== "function") {
     throw new Error("Promise resolver is not a function");
@@ -186,6 +198,10 @@ function Promise(resolver) {
     reject(this, err);
   }
 }
+
+// -------------------------------
+//  Prototype Functions
+// -------------------------------
 
 Promise.prototype.then = function(onResolved, onRejected) {
   if (
@@ -216,6 +232,21 @@ Promise.prototype.then = function(onResolved, onRejected) {
 Promise.prototype.catch = function(onRejected) {
   return this.then(null, onRejected);
 };
+
+Promise.prototype.finally = function(callback) {
+  return this.then(
+      function (value) {
+        Promise.resolve(callback(value));
+      },
+      function (error) {
+        Promise.resolve(callback(error));
+      }
+  );
+};
+
+// -------------------------------
+//  Static Functions
+// -------------------------------
 
 Promise.resolve = function(value) {
   if (value instanceof Promise) {
@@ -292,6 +323,10 @@ Promise.race = function(promises) {
     });
   });
 };
+
+// -------------------------------
+//  Unit Test Functions
+// -------------------------------
 
 /**
  * This function is required for running the tests against Promise/A+ specs
