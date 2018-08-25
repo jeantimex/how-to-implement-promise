@@ -235,6 +235,12 @@ Promise.reject = function(value) {
   });
 };
 
+/**
+ * Returns a single Promise that resolves when all of the promises in the iterable argument have resolved
+ * or when the iterable argument contains no promises. It rejects with the reason of the first promise that rejects.
+ *
+ * @param {Promise[]} promises
+ */
 Promise.all = function(promises) {
   var results = [];
   var completedPromises = 0;
@@ -262,6 +268,12 @@ Promise.all = function(promises) {
   });
 };
 
+/**
+ * Returns a promise that resolves or rejects as soon as one of the promises in the iterable resolves or rejects,
+ * with the value or reason from that promise.
+ *
+ * @param {Promise[]} promises
+ */
 Promise.race = function(promises) {
   return new Promise(function(resolve, reject) {
     promises.forEach(function(promise) {
@@ -281,6 +293,9 @@ Promise.race = function(promises) {
   });
 };
 
+/**
+ * This function is required for running the tests against Promise/A+ specs
+ */
 Promise.deferred = Promise.defer = function() {
   var dfd = {};
   dfd.promise = new Promise(function(resolve, reject) {
