@@ -1,19 +1,19 @@
 var asyncFn = (function() {
   if (
-    typeof process === 'object' &&
+    typeof process === "object" &&
     process !== null &&
-    typeof process.nextTick === 'function'
+    typeof process.nextTick === "function"
   ) {
     return process.nextTick;
-  } else if (typeof setImmediate === 'function') {
+  } else if (typeof setImmediate === "function") {
     return setImmediate;
   }
   return setTimeout;
 })();
 
 function Handler(onResolved, onRejected, promise) {
-  this.onResolved = typeof onResolved === 'function' ? onResolved : null;
-  this.onRejected = typeof onRejected === 'function' ? onRejected : null;
+  this.onResolved = typeof onResolved === "function" ? onResolved : null;
+  this.onRejected = typeof onRejected === "function" ? onRejected : null;
   this.promise = promise;
 }
 
@@ -26,13 +26,13 @@ function resolve(promise, value) {
   if (value === promise) {
     return reject(
       promise,
-      new TypeError('A promise cannot be resolved with itself.')
+      new TypeError("A promise cannot be resolved with itself.")
     );
   }
 
   // 如果 value 为 Promise，则使 promise 接受 value 的状态
   // 对应 Promise A+ 规范 2.3.2
-  if (value && value instanceof MiniPromise && value.then === promise.then) {
+  if (value && value instanceof Promise && value.then === promise.then) {
     var deferreds = promise._deferreds;
 
     if (value._state === 0) {
@@ -56,7 +56,7 @@ function resolve(promise, value) {
 
   // value 是对象或函数
   // 对应 Promise A+ 规范 2.3.3
-  if (value && (typeof value === 'object' || typeof value === 'function')) {
+  if (value && (typeof value === "object" || typeof value === "function")) {
     try {
       // 对应 Promise A+ 规范 2.3.3.1
       var then = obj.then;
@@ -67,7 +67,7 @@ function resolve(promise, value) {
 
     // 如果 then 是函数，将 value 作为函数的作用域 this 调用之
     // 对应 Promise A+ 规范 2.3.3.3
-    if (typeof then === 'function') {
+    if (typeof then === "function") {
       try {
         // 执行 then 函数
         then.call(
@@ -146,9 +146,10 @@ function handleResolved(promise, deferred) {
   });
 }
 
-function MiniPromise(fn) {
-  // 省略非 new 实例化方式处理
-  // 省略 fn 非函数异常处理
+function Promise(resolver) {
+  if (resolver && typeof resolver !== "function") {
+    throw new Error("Promise resolver is not a function");
+  }
 
   // promise 状态变量
   // 0 - pending
@@ -163,7 +164,7 @@ function MiniPromise(fn) {
 
   // 立即执行 fn 函数
   try {
-    fn(
+    resolver(
       value => {
         resolve(this, value);
       },
@@ -177,8 +178,8 @@ function MiniPromise(fn) {
   }
 }
 
-MiniPromise.prototype.then = function(onResolved, onRejected) {
-  var res = new MiniPromise(function() {});
+Promise.prototype.then = function(onResolved, onRejected) {
+  var res = new Promise(function() {});
   // 使用 onResolved，onRejected 实例化处理对象 Handler
   var deferred = new Handler(onResolved, onRejected, res);
 
@@ -196,39 +197,79 @@ MiniPromise.prototype.then = function(onResolved, onRejected) {
   return res;
 };
 
-MiniPromise.resolve = function (value) {
-  if (value instanceof MiniPromise) {
+Promise.prototype.catch = function(onRejected) {
+  return this.then(null, onRejected);
+};
+
+Promise.resolve = function(value) {
+  if (value instanceof Promise) {
     return value;
   }
-  return new MiniPromise(function (resolve) {
+  return new Promise(function(resolve) {
     return resolve(value);
   });
 };
 
-MiniPromise.reject = function (reason) {
-  return new MiniPromise(function (resolve, reject) {
+Promise.reject = function(reason) {
+  return new Promise(function(resolve, reject) {
     reject(reason);
   });
 };
 
-MiniPromise.all = async function (promises) {
+Promise.all = function(promises) {
   var results = [];
-  for (var promise of promises) {
-      results.push(await promise);
-  }
-  return results;
+  var completedPromises = 0;
+
+  return new Promise(function(resolve, reject) {
+    promises.forEach(function(promise, index) {
+      Promise.resolve(promise)
+        .then(
+          function(value) {
+            results[index] = value;
+            completedPromises += 1;
+
+            if (completedPromises === promises.length) {
+              console.log(results);
+              return resolve(results);
+            }
+          },
+          function(reason) {
+            return reject(reason);
+          }
+        )
+        .catch(function(error) {
+          return reject(error);
+        });
+    });
+  });
 };
 
-MiniPromise.race = function (promises) {
-  return new MiniPromise(function (resolve, reject) {
-    for (var i = 0; i < promises.length; i++) {
-      MiniPromise.resolve(promises[i]).then(function (value) {
-        return resolve(value);
-      }, function(reason) {
-        return reject(reason);
-      });
-    }
+Promise.race = function(promises) {
+  return new Promise(function(resolve, reject) {
+    promises.forEach(function(promise) {
+      Promise.resolve(promise)
+        .then(
+          function(value) {
+            return resolve(value);
+          },
+          function(reason) {
+            return reject(reason);
+          }
+        )
+        .catch(function(error) {
+          return reject(error);
+        });
+    });
   });
-}
+};
 
-module.exports = MiniPromise;
+Promise.deferred = Promise.defer = function() {
+  var dfd = {};
+  dfd.promise = new Promise(function(resolve, reject) {
+    dfd.resolve = resolve;
+    dfd.reject = reject;
+  });
+  return dfd;
+};
+
+module.exports = Promise;

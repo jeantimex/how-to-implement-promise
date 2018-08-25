@@ -4,7 +4,7 @@
   "description": "A tutorial to show how to implement Promise using vanilla JavaScript",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "promises-aplus-tests promise.js"
   },
   "repository": {
     "type": "git",
@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/jeantimex/how-to-implement-promise/issues"
   },
-  "homepage": "https://github.com/jeantimex/how-to-implement-promise#readme"
+  "homepage": "https://github.com/jeantimex/how-to-implement-promise#readme",
+  "dependencies": {
+    "promises-aplus-tests": "^2.1.2"
+  }
 }
