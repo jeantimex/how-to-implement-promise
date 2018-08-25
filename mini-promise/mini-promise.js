@@ -219,4 +219,16 @@ MiniPromise.all = async function (promises) {
   return results;
 };
 
+MiniPromise.race = function (promises) {
+  return new MiniPromise(function (resolve, reject) {
+    for (var i = 0; i < promises.length; i++) {
+      MiniPromise.resolve(promises[i]).then(function (value) {
+        return resolve(value);
+      }, function(reason) {
+        return reject(reason);
+      });
+    }
+  });
+}
+
 module.exports = MiniPromise;
