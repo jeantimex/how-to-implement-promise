@@ -1,30 +1,46 @@
-function Handler (onResolved, onRejected, promise) {
+var asyncFn = (function() {
+  if (
+    typeof process === 'object' &&
+    process !== null &&
+    typeof process.nextTick === 'function'
+  ) {
+    return process.nextTick;
+  } else if (typeof setImmediate === 'function') {
+    return setImmediate;
+  }
+  return setTimeout;
+})();
+
+function Handler(onResolved, onRejected, promise) {
   this.onResolved = typeof onResolved === 'function' ? onResolved : null;
   this.onRejected = typeof onRejected === 'function' ? onRejected : null;
   this.promise = promise;
 }
 
-function resolve (promise, value) {
+function resolve(promise, value) {
   // 非 pending 状态不可变
   if (promise._state !== 0) return;
 
   // promise 和 value 指向同一对象
   // 对应 Promise A+ 规范 2.3.1
   if (value === promise) {
-    return reject( promise, new TypeError('A promise cannot be resolved with itself.') );
+    return reject(
+      promise,
+      new TypeError('A promise cannot be resolved with itself.')
+    );
   }
 
   // 如果 value 为 Promise，则使 promise 接受 value 的状态
   // 对应 Promise A+ 规范 2.3.2
-  if (value && value instanceof Promise && value.then === promise.then) {
-    var deferreds = promise._deferreds
+  if (value && value instanceof MiniPromise && value.then === promise.then) {
+    var deferreds = promise._deferreds;
 
     if (value._state === 0) {
       // value 为 pending 状态
       // 将 promise._deferreds 传递 value._deferreds
       // 偷个懒，使用 ES6 展开运算符
       // 对应 Promise A+ 规范 2.3.2.1
-      value._deferreds.push(...deferreds)
+      value._deferreds.push(...deferreds);
     } else if (deferreds.length !== 0) {
       // value 为 非pending 状态
       // 使用 value 作为当前 promise，执行 then 注册回调处理
@@ -54,11 +70,15 @@ function resolve (promise, value) {
     if (typeof then === 'function') {
       try {
         // 执行 then 函数
-        then.call(value, function (value) {
-          resolve(promise, value);
-        }, function (reason) {
-          reject(promise, reason);
-        })
+        then.call(
+          value,
+          function(value) {
+            resolve(promise, value);
+          },
+          function(reason) {
+            reject(promise, reason);
+          }
+        );
       } catch (err) {
         reject(promise, err);
       }
@@ -81,7 +101,7 @@ function resolve (promise, value) {
   }
 }
 
-function reject (promise, reason) {
+function reject(promise, reason) {
   // 非 pending 状态不可变
   if (promise._state !== 0) return;
 
@@ -99,11 +119,10 @@ function reject (promise, reason) {
   }
 }
 
-function handleResolved (promise, deferred) {
+function handleResolved(promise, deferred) {
   // 异步执行注册回调
-  asyncFn(function () {
-    var cb = promise._state === 1 ?
-            deferred.onResolved : deferred.onRejected;
+  asyncFn(function() {
+    var cb = promise._state === 1 ? deferred.onResolved : deferred.onRejected;
 
     // 传递注册回调函数为空情况
     if (cb === null) {
@@ -127,7 +146,7 @@ function handleResolved (promise, deferred) {
   });
 }
 
-function Promise (fn) {
+function MiniPromise(fn) {
   // 省略非 new 实例化方式处理
   // 省略 fn 非函数异常处理
 
@@ -144,19 +163,22 @@ function Promise (fn) {
 
   // 立即执行 fn 函数
   try {
-    fn(value => {
-      resolve(this, value);
-    },reason => {
-      reject(this, reason);
-    })
+    fn(
+      value => {
+        resolve(this, value);
+      },
+      reason => {
+        reject(this, reason);
+      }
+    );
   } catch (err) {
     // 处理执行 fn 异常
     reject(this, err);
   }
 }
 
-Promise.prototype.then = function (onResolved, onRejected) {
-  var res = new Promise(function () {});
+MiniPromise.prototype.then = function(onResolved, onRejected) {
+  var res = new MiniPromise(function() {});
   // 使用 onResolved，onRejected 实例化处理对象 Handler
   var deferred = new Handler(onResolved, onRejected, res);
 
@@ -174,8 +196,13 @@ Promise.prototype.then = function (onResolved, onRejected) {
   return res;
 };
 
-Promise.resolve(233)
-  .then()
-  .then(function (value) {
-    console.log(value)
-  })
+MiniPromise.resolve = function (value) {
+  if (value instanceof MiniPromise) {
+    return value;
+  }
+  return new MiniPromise(function (resolve) {
+    return resolve(value);
+  });
+};
+
+module.exports = MiniPromise;
