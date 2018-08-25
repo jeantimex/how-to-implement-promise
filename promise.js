@@ -51,9 +51,8 @@ function resolve(promise, value) {
     if (value.state === PENDING) {
       // value 为 pending 状态
       // 将 promise.callbacks 传递 value.callbacks
-      // 偷个懒，使用 ES6 展开运算符
       // 对应 Promise A+ 规范 2.3.2.1
-      value.callbacks.push(...callbacks);
+      value.callbacks = value.callbacks.concat(callbacks);
     } else if (callbacks.length !== 0) {
       // value 为 非pending 状态
       // 使用 value 作为当前 promise，执行 then 注册回调处理
