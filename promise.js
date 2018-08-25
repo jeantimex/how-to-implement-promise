@@ -229,7 +229,6 @@ Promise.all = function(promises) {
             completedPromises += 1;
 
             if (completedPromises === promises.length) {
-              console.log(results);
               return resolve(results);
             }
           },
