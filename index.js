@@ -45,8 +45,8 @@ const Promise = require("./promise");
 
   console.time("#3");
   Promise.all([promise1, promise2, promise3, promise4]).then(function(values) {
-    console.timeEnd("#3");
     console.log(`#3: ${values}`);
+    console.timeEnd("#3");
   });
 })();
 

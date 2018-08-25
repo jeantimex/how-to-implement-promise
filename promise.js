@@ -11,6 +11,15 @@ var asyncFn = (function() {
   return setTimeout;
 })();
 
+function getThen(obj) {
+  var then = obj && obj.then;
+  if (obj && typeof obj === "object" && typeof then === "function") {
+    return function appyThen() {
+      then.apply(obj, arguments);
+    };
+  }
+}
+
 function Handler(onResolved, onRejected, promise) {
   this.onResolved = typeof onResolved === "function" ? onResolved : null;
   this.onRejected = typeof onRejected === "function" ? onRejected : null;
@@ -59,7 +68,7 @@ function resolve(promise, value) {
   if (value && (typeof value === "object" || typeof value === "function")) {
     try {
       // 对应 Promise A+ 规范 2.3.3.1
-      var then = obj.then;
+      var then = getThen(value);
     } catch (err) {
       // 对应 Promise A+ 规范 2.3.3.2
       return reject(promise, err);
@@ -206,13 +215,16 @@ Promise.resolve = function(value) {
     return value;
   }
   return new Promise(function(resolve) {
-    return resolve(value);
+    resolve(value);
   });
 };
 
-Promise.reject = function(reason) {
+Promise.reject = function(value) {
+  if (value instanceof Promise) {
+    return value;
+  }
   return new Promise(function(resolve, reject) {
-    reject(reason);
+    reject(value);
   });
 };
 
@@ -229,15 +241,15 @@ Promise.all = function(promises) {
             completedPromises += 1;
 
             if (completedPromises === promises.length) {
-              return resolve(results);
+              resolve(results);
             }
           },
           function(reason) {
-            return reject(reason);
+            reject(reason);
           }
         )
         .catch(function(error) {
-          return reject(error);
+          reject(error);
         });
     });
   });
@@ -249,14 +261,14 @@ Promise.race = function(promises) {
       Promise.resolve(promise)
         .then(
           function(value) {
-            return resolve(value);
+            resolve(value);
           },
           function(reason) {
-            return reject(reason);
+            reject(reason);
           }
         )
         .catch(function(error) {
-          return reject(error);
+          reject(error);
         });
     });
   });
