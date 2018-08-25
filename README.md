@@ -35,35 +35,31 @@ function delay(ms) {
 
 ### Promise.all
 ```javascript
-(function() {
-  var promise1 = Promise.resolve(3);
-  var promise2 = 42;
-  var promise3 = new Promise(function(resolve, reject) {
-    setTimeout(resolve, 100, "foo");
-  });
-  var promise4 = new Promise(function(resolve, reject) {
-    setTimeout(resolve, 200, "bar");
-  });
+var promise1 = Promise.resolve(3);
+var promise2 = 42;
+var promise3 = new Promise(function(resolve, reject) {
+  setTimeout(resolve, 100, "foo");
+});
+var promise4 = new Promise(function(resolve, reject) {
+  setTimeout(resolve, 200, "bar");
+});
 
-  Promise.all([promise1, promise2, promise3, promise4]).then(function(values) {
-    console.log(values);
-  });
-})();
+Promise.all([promise1, promise2, promise3, promise4]).then(function(values) {
+  console.log(values);
+});
 ```
 
 ### Promise.race
 ```javascript
-(function() {
-  var promise1 = new Promise(function(resolve, reject) {
-    setTimeout(resolve, 500, "one");
-  });
+var promise1 = new Promise(function(resolve, reject) {
+  setTimeout(resolve, 500, "one");
+});
 
-  var promise2 = new Promise(function(resolve, reject) {
-    setTimeout(resolve, 100, "two");
-  });
+var promise2 = new Promise(function(resolve, reject) {
+  setTimeout(resolve, 100, "two");
+});
 
-  Promise.race([promise1, promise2]).then(function(value) {
-    console.log(value);
-  });
-})();
+Promise.race([promise1, promise2]).then(function(value) {
+  console.log(value);
+});
 ```
