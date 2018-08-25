@@ -63,3 +63,9 @@ Promise.race([promise1, promise2]).then(function(value) {
   console.log(value);
 });
 ```
+
+## Test with Promise/A+ Specs
+```
+npm install
+npm run test
+```
