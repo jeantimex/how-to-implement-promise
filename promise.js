@@ -108,7 +108,7 @@ function resolve(promise, value) {
 
   // 改变 promise 内部状态为 `resolved`
   // 对应 Promise A+ 规范 2.3.3.4、2.3.4
-  promise.state = 1;
+  promise.state = RESOLVED;
   promise.value = value;
 
   // promise 存在 then 注册回调函数
