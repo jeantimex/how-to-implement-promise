@@ -4,6 +4,8 @@
 
 In this tutorial, you will learn how to implement a Promise that is Promises/A+ compliant.
 
+## Source code structure
+
 ## Example Usage
 
 ```javascript
@@ -65,7 +67,9 @@ Promise.race([promise1, promise2]).then(function(value) {
 });
 ```
 
-## Test with Promise/A+ Specs
+## Test with Promise/A+ specs
+
+The Promises/A+ compliance test suite can be found [here](https://github.com/promises-aplus/promises-tests).
 ```
 npm install
 npm run test
@@ -75,7 +79,7 @@ npm run test
 
 1. [Promise/A+ Specs](https://promisesaplus.com/)
 2. [MDN - Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
-3. [Implementing](https://www.promisejs.org/implementing/)
+3. [Implementing Promise](https://www.promisejs.org/implementing/)
 4. [Implementing promises from scratch](https://www.mauriciopoppe.com/notes/computer-science/computation/promises/)
 5. [Promises, Next-Ticks and Immediates](https://jsblog.insiderattack.net/promises-next-ticks-and-immediates-nodejs-event-loop-part-3-9226cbe7a6aa)
 6. [深入理解 Promise (中)](http://coderlt.coding.me/2016/12/04/promise-in-depth-an-introduction-2/)
