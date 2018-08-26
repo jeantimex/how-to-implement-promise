@@ -4,6 +4,9 @@
 
 Implement a Promise that is Promises/A+ compliant using vanilla JavaScript.
 
+<!-- markdownlint-disable MD033 -->
+<img alt="cover" src="https://user-images.githubusercontent.com/565300/44634429-cf951f80-a94e-11e8-8f65-e30f308247f0.jpg" width="600" />
+
 ## Example Usage
 
 ```javascript
