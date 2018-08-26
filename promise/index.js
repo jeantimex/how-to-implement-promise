@@ -1,5 +1,5 @@
 //
-// Promise/A+ Spec Extension
+// Promise/A+ Specs Extension
 //
 // Methods:
 //
