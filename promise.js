@@ -1,15 +1,34 @@
+/**
+ * A Promise/A+ Spec Implementation
+ *
+ * Properties:
+ * - Promise.prototype
+ *
+ * Methods:
+ * - Promise.prototype.then()
+ * - Promise.prototype.catch()
+ * - Promise.prototype.finally()
+ * - Promise.all()
+ * - Promise.race()
+ * - Promise.reject()
+ * - promise.resolve()
+ */
+
 // -------------------------------
-//  Variables
+//  Promise States
 // -------------------------------
 
 var PENDING = 0;
-var RESOLVED = 1;
+var FULFILLED = 1;
 var REJECTED = 2;
 
 // -------------------------------
 //  Helper Functions
 // -------------------------------
 
+/**
+ * Returns an asynchronous function that is available
+ */
 var asyncFn = (function() {
   if (
     typeof process === "object" &&
@@ -23,15 +42,23 @@ var asyncFn = (function() {
   return setTimeout;
 })();
 
+/**
+ * Returns the then function if the input object is thenable
+ *
+ * @param {Object} obj
+ */
 function getThen(obj) {
   var then = obj && obj.then;
   if (obj && typeof obj === "object" && typeof then === "function") {
-    return function appyThen() {
-      then.apply(obj, arguments);
-    };
+    return then;
   }
 }
 
+/**
+ * @param {Function} onResolved
+ * @param {Function} onRejected
+ * @param {Promise} promise
+ */
 function Handler(onResolved, onRejected, promise) {
   this.onResolved = typeof onResolved === "function" ? onResolved : null;
   this.onRejected = typeof onRejected === "function" ? onRejected : null;
@@ -39,11 +66,11 @@ function Handler(onResolved, onRejected, promise) {
 }
 
 function resolve(promise, value) {
-  // 非 pending 状态不可变
+  // If the promise is resolved or rejected already, do nothing
   if (promise.state !== PENDING) return;
 
-  // promise 和 value 指向同一对象
-  // 对应 Promise A+ 规范 2.3.1
+  // Promise A+ spec 2.3.1
+  // when promise and value is the same object, reject the promise
   if (value === promise) {
     return reject(
       promise,
@@ -51,45 +78,46 @@ function resolve(promise, value) {
     );
   }
 
-  // 如果 value 为 Promise，则使 promise 接受 value 的状态
-  // 对应 Promise A+ 规范 2.3.2
+  // Promise A+ spec 2.3.2
+  // when value is Promise, resolve the promise
   if (value && value instanceof Promise && value.then === promise.then) {
     var callbacks = promise.callbacks;
 
     if (value.state === PENDING) {
-      // value 为 pending 状态
-      // 将 promise.callbacks 传递 value.callbacks
-      // 对应 Promise A+ 规范 2.3.2.1
+      // Promise A+ spec 2.3.2.1
+      // value is in pending state
+      // add promise.callbacks to value.callbacks
       value.callbacks = value.callbacks.concat(callbacks);
     } else if (callbacks.length !== 0) {
-      // value 为 非pending 状态
-      // 使用 value 作为当前 promise，执行 then 注册回调处理
-      // 对应 Promise A+ 规范 2.3.2.2、2.3.2.3
+      // value is not in pending state
+      // execute the callbacks and use value as the current promise
+      // Promise A+ spec 2.3.2.2、2.3.2.3
       callbacks.forEach(function(callback) {
         handleResolved(value, callback);
       });
-      // 清空 then 注册回调处理数组
+      // clean up the registered callbacks
       value.callbacks = [];
     }
     return;
   }
 
-  // value 是对象或函数
-  // 对应 Promise A+ 规范 2.3.3
+  // Promise A+ spec 2.3.3
+  // value is object or function
   if (value && (typeof value === "object" || typeof value === "function")) {
     try {
-      // 对应 Promise A+ 规范 2.3.3.1
+      // Promise A+ spec 2.3.3.1
+      // try to get the then function from the thenable object
       var then = getThen(value);
     } catch (error) {
-      // 对应 Promise A+ 规范 2.3.3.2
+      // Promise A+ spec 2.3.3.2
       return reject(promise, error);
     }
 
-    // 如果 then 是函数，将 value 作为函数的作用域 this 调用之
-    // 对应 Promise A+ 规范 2.3.3.3
+    // Promise A+ spec 2.3.3.3
+    // if then is a function, make value as the this scope
     if (typeof then === "function") {
       try {
-        // 执行 then 函数
+        // execute the then function
         then.call(
           value,
           function(value) {
@@ -106,32 +134,32 @@ function resolve(promise, value) {
     }
   }
 
-  // 改变 promise 内部状态为 `resolved`
-  // 对应 Promise A+ 规范 2.3.3.4、2.3.4
-  promise.state = RESOLVED;
+  // Promise A+ spec 2.3.3.4、2.3.4
+  // change the promise internal state to `resolved`
+  promise.state = FULFILLED;
   promise.value = value;
 
-  // promise 存在 then 注册回调函数
+  // promise has callbacks that were registered via then
   if (promise.callbacks.length !== 0) {
     promise.callbacks.forEach(function(callback) {
       handleResolved(promise, callback);
     });
-    // 清空 then 注册回调处理数组
+    // clean up the callbacks
     promise.callbacks = [];
   }
 }
 
 function reject(promise, reason) {
-  // 非 pending 状态不可变
+  // If the promise is resolved or rejected already, do nothing
   if (promise.state !== PENDING) return;
 
-  // 改变 promise 内部状态为 `rejected`
+  // change promise internal state to `rejected`
   promise.state = REJECTED;
   promise.value = reason;
 
-  // 判断是否存在 then(..) 注册回调处理
+  // check if there is any callback function that is registered via then(...)
   if (promise.callbacks.length !== 0) {
-    // 异步执行回调函数
+    // execute all the callback functions
     promise.callbacks.forEach(function(callback) {
       handleResolved(promise, callback);
     });
@@ -140,14 +168,14 @@ function reject(promise, reason) {
 }
 
 function handleResolved(promise, callback) {
-  // 异步执行注册回调
+  // execute the callbacks asynchronously
   asyncFn(function() {
     var cb =
-      promise.state === RESOLVED ? callback.onResolved : callback.onRejected;
+      promise.state === FULFILLED ? callback.onResolved : callback.onRejected;
 
-    // 传递注册回调函数为空情况
+    // if the callback is empty
     if (cb === null) {
-      if (promise.state === RESOLVED) {
+      if (promise.state === FULFILLED) {
         resolve(callback.promise, promise.value);
       } else {
         reject(callback.promise, promise.value);
@@ -155,14 +183,14 @@ function handleResolved(promise, callback) {
       return;
     }
 
-    // 执行注册回调操作
+    // execute the registered callback
     try {
       var res = cb(promise.value);
     } catch (error) {
       reject(callback.promise, error);
     }
 
-    // 处理链式 then(..) 注册处理函数调用
+    // chain reaction
     resolve(callback.promise, res);
   });
 }
@@ -176,14 +204,14 @@ function Promise(resolver) {
     throw new Error("Promise resolver is not a function");
   }
 
-  // promise 状态变量
+  // default promise internal state
   this.state = PENDING;
-  // promise 执行结果
+  // default promise result
   this.value = null;
-  // then(..) 注册回调处理数组
+  // then(..) registered callbacks
   this.callbacks = [];
 
-  // 立即执行 fn 函数
+  // execute the resolver immediately
   try {
     resolver(
       value => {
@@ -193,9 +221,9 @@ function Promise(resolver) {
         reject(this, reason);
       }
     );
-  } catch (err) {
-    // 处理执行 fn 异常
-    reject(this, err);
+  } catch (error) {
+    // handle the exception, if any
+    reject(this, error);
   }
 }
 
@@ -205,28 +233,28 @@ function Promise(resolver) {
 
 Promise.prototype.then = function(onResolved, onRejected) {
   if (
-    (typeof onResolved !== "function" && this.state === RESOLVED) ||
+    (typeof onResolved !== "function" && this.state === FULFILLED) ||
     (typeof onRejected !== "function" && this.state === REJECTED)
   ) {
     return this;
   }
 
-  var res = new Promise(function() {});
-  // 使用 onResolved，onRejected 实例化处理对象 Handler
-  var callback = new Handler(onResolved, onRejected, res);
+  var promise = new Promise(function() {});
+  // instantiate a new handler with onResolved, onRejected
+  var callback = new Handler(onResolved, onRejected, promise);
 
-  // 当前状态为 pendding，存储延迟处理对象
+  // if current state is pendding, put the callback to the callback pool
   if (this.state === PENDING) {
     this.callbacks.push(callback);
-    return res;
+    return promise;
   }
 
-  // 当前 promise 状态不为 pending
-  // 调用 handleResolved 执行onResolved或onRejected回调
+  // if current promise state is not pending
+  // call handleResolved and execute onResolved or onRejected based on the current state
   handleResolved(this, callback);
 
-  // 返回新 promise 对象，维持链式调用
-  return res;
+  // return the new promise, keep then chainable
+  return promise;
 };
 
 Promise.prototype.catch = function(onRejected) {
@@ -235,12 +263,12 @@ Promise.prototype.catch = function(onRejected) {
 
 Promise.prototype.finally = function(callback) {
   return this.then(
-      function (value) {
-        Promise.resolve(callback(value));
-      },
-      function (error) {
-        Promise.resolve(callback(error));
-      }
+    function(value) {
+      Promise.resolve(callback(value));
+    },
+    function(error) {
+      Promise.resolve(callback(error));
+    }
   );
 };
 
