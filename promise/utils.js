@@ -9,7 +9,7 @@
  *
  * @returns {Function}
  */
-var asyncFn = (function() {
+const asyncFn = (function() {
   if (
     typeof process === "object" &&
     process !== null &&
