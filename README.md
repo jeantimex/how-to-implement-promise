@@ -6,7 +6,6 @@ In this tutorial, you will learn how to implement a Promise that is Promises/A+ 
 
 ## Example Usage
 
-Import our Promise
 ```javascript
 const Promise = require("./promise");
 ```
