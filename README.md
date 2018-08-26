@@ -66,12 +66,11 @@ Promise.race([promise1, promise2]).then(function(value) {
 ```
 
 ## Test with Promise/A+ specs
-
-The Promises/A+ compliance test suite can be found [here](https://github.com/promises-aplus/promises-tests).
 ```
 npm install
 npm run test
 ```
+Note: The Promises/A+ compliance test suite can be found [here](https://github.com/promises-aplus/promises-tests).
 
 ## References
 
