@@ -2,9 +2,7 @@
 
 [![Build Status](https://travis-ci.org/jeantimex/how-to-implement-promise.svg?branch=master)](https://travis-ci.org/jeantimex/how-to-implement-promise)
 
-In this tutorial, you will learn how to implement a Promise that is Promises/A+ compliant.
-
-## Source code structure
+Implement a Promise that is Promises/A+ compliant.
 
 ## Example Usage
 
