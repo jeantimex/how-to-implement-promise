@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/jeantimex/how-to-implement-promise.svg?branch=master)](https://travis-ci.org/jeantimex/how-to-implement-promise)
 
-Implement a Promise that is Promises/A+ compliant.
+Implement a Promise that is Promises/A+ compliant using vanilla JavaScript.
 
 ## Example Usage
 
@@ -69,6 +69,9 @@ Promise.race([promise1, promise2]).then(function(value) {
 ```
 npm install
 npm run test
+
+...
+872 passing
 ```
 Note: The Promises/A+ compliance test suite can be found [here](https://github.com/promises-aplus/promises-tests).
 
