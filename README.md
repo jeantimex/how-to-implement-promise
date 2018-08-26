@@ -36,12 +36,12 @@ function delay(ms) {
 
 ### Promise.all
 ```javascript
-var promise1 = Promise.resolve(3);
-var promise2 = 42;
-var promise3 = new Promise(function(resolve, reject) {
+const promise1 = Promise.resolve(3);
+const promise2 = 42;
+const promise3 = new Promise(function(resolve, reject) {
   setTimeout(resolve, 100, "foo");
 });
-var promise4 = new Promise(function(resolve, reject) {
+const promise4 = new Promise(function(resolve, reject) {
   setTimeout(resolve, 200, "bar");
 });
 
@@ -52,11 +52,11 @@ Promise.all([promise1, promise2, promise3, promise4]).then(function(values) {
 
 ### Promise.race
 ```javascript
-var promise1 = new Promise(function(resolve, reject) {
+const promise1 = new Promise(function(resolve, reject) {
   setTimeout(resolve, 500, "one");
 });
 
-var promise2 = new Promise(function(resolve, reject) {
+const promise2 = new Promise(function(resolve, reject) {
   setTimeout(resolve, 100, "two");
 });
 
