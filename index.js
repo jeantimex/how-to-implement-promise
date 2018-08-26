@@ -34,12 +34,12 @@ const Promise = require("./promise");
 //  Example Usage #3
 // -------------------------
 (function() {
-  var promise1 = Promise.resolve(3);
-  var promise2 = 42;
-  var promise3 = new Promise(function(resolve, reject) {
+  const promise1 = Promise.resolve(3);
+  const promise2 = 42;
+  const promise3 = new Promise(function(resolve, reject) {
     setTimeout(resolve, 100, "foo");
   });
-  var promise4 = new Promise(function(resolve, reject) {
+  const promise4 = new Promise(function(resolve, reject) {
     setTimeout(resolve, 200, "bar");
   });
 
@@ -54,11 +54,11 @@ const Promise = require("./promise");
 //  Example Usage #4
 // -------------------------
 (function() {
-  var promise1 = new Promise(function(resolve, reject) {
+  const promise1 = new Promise(function(resolve, reject) {
     setTimeout(resolve, 500, "one");
   });
 
-  var promise2 = new Promise(function(resolve, reject) {
+  const promise2 = new Promise(function(resolve, reject) {
     setTimeout(resolve, 100, "two");
   });
 

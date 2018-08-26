@@ -4,7 +4,7 @@
   "description": "A tutorial to show how to implement Promise using vanilla JavaScript",
   "main": "index.js",
   "scripts": {
-    "test": "promises-aplus-tests promise.js"
+    "test": "promises-aplus-tests ./promise/promise.js"
   },
   "repository": {
     "type": "git",
