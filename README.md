@@ -1,6 +1,8 @@
 # How to Implement Promise
 
-A tutorial to show how to implement Promise using vanilla JavaScript
+[![Build Status](https://travis-ci.org/jeantimex/how-to-implement-promise.svg?branch=master)](https://travis-ci.org/jeantimex/how-to-implement-promise)
+
+In this tutorial, you will learn how to implement a Promise that is Promises/A+ compliant.
 
 ## Example Usage
 
@@ -69,3 +71,13 @@ Promise.race([promise1, promise2]).then(function(value) {
 npm install
 npm run test
 ```
+
+## References
+
+1. [Promise/A+ Specs](https://promisesaplus.com/)
+2. [MDN - Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
+3. [Implementing](https://www.promisejs.org/implementing/)
+4. [Implementing promises from scratch](https://www.mauriciopoppe.com/notes/computer-science/computation/promises/)
+5. [Promises, Next-Ticks and Immediates](https://jsblog.insiderattack.net/promises-next-ticks-and-immediates-nodejs-event-loop-part-3-9226cbe7a6aa)
+6. [深入理解 Promise (中)](http://coderlt.coding.me/2016/12/04/promise-in-depth-an-introduction-2/)
+7. [解读Promise内部实现原理](https://juejin.im/post/5a30193051882503dc53af3c)
