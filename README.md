@@ -70,12 +70,10 @@ Promise.race([promise1, promise2]).then(function(value) {
 
 ## Test with Promise/A+ specs
 ```
-npm install
 npm run test
-
-...
-872 passing
 ```
+<img width="825" alt="unit-tests" src="https://user-images.githubusercontent.com/565300/44643162-59131480-a984-11e8-9a3e-b5690f6efd6d.png">
+
 Note: The Promises/A+ compliance test suite can be found [here](https://github.com/promises-aplus/promises-tests).
 
 ## References
